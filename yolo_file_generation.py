@@ -13,6 +13,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
+
 image_typ = ['train', 'test', 'valid']
 current_type_choice = 2 # 0,1,2
 current_image_type = image_typ[current_type_choice]
@@ -37,7 +38,9 @@ imag_height = image.shape[0]
 yolo_width = round(64 / imag_width, 6)
 yolo_height = round(64 / imag_height, 6)
 #%% 
-# filter intact_road   
+# filter intact_road 
+if current_image_type == 0:
+    print('begin to filter the information,for train set please have some patience')  
 patch_ref_distress = patch_ref[np.argwhere(patch_ref[:,4]==1)[:,0],:]
 index = np.argsort(patch_ref_distress[:,0])
 patch_ref_distress = patch_ref_distress[index,:]
@@ -80,8 +83,9 @@ while i < num_yolo_info:
 #%%
 # create folder label and generate txt file to store the object information
 # the format is the same with yolo v3 label.the name is the same with image
-os.makedirs('images/labels_all',exist_ok= True) 
-base_path = os.getcwd() + '/images/labels_all/'
+label_folder = 'images/labels/'
+os.makedirs(label_folder,exist_ok= True) 
+base_path = os.getcwd() + '/' + label_folder
 #os.makedirs('images/labels',exist_ok= True) 
 #base_path = os.getcwd() + '/images/labels/'
 
@@ -93,6 +97,7 @@ def string_generate(list1):
         str1 += str(item) + " "
     return str1
 
+print('begin to generate yolo file')
 for i in range(len(image_infos)):
     imag = image_infos[i]
     if len(imag) == 0:
@@ -103,5 +108,7 @@ for i in range(len(image_infos)):
         object_info = string_generate(imag[j][1:])          
         f.write(object_info +'\n')
     f.close()
-    print(i)
+    print(image_filename, ' done')
+
+print('finished')
     

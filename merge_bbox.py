@@ -16,10 +16,10 @@ import cv2
 import matplotlib.pyplot as plt
 
 
-deal_with_all_files = 0
+deal_with_all_files = 1
 # if true, deal with all files of chosen type
 # if false, deal with single file
-current_type_choice = 2 # 0:train,1:test,2 valid
+current_type_choice = 0 # 0:train,1:test,2 valid
 image_num = 4  # raise error when out of range
 bbox_padding = 0  
 # the original bbox is 64*64, make it larger to merge better
@@ -35,7 +35,7 @@ label_folder = base_folder + '/images/labels/'
 label_folder_name = 'images/bbox_merge/labels/'
 
 # 0:intact_road, 1:applied_patch, 2:pothole, 3:inlaid_patch, 4:open_joint, 5:crack
-data_type = [5]
+data_type = [1,2,3,4,5]
 
 label_folder_merge = base_folder + '/' + label_folder_name
 #os.makedirs('images/bbox_merge',exist_ok= True)
@@ -127,7 +127,7 @@ def delete_child_contours(contours,hierarchy):
 
 for image_num in plot_num:
     if image_num % 100 == 0:
-        print(image_num)
+        print(image_num, ' files finished')
     image_filename = image_template.format(image_num)
     label_filename = label_template.format(image_num)
     if not os.path.isfile(label_filename):    
@@ -213,3 +213,4 @@ for image_num in plot_num:
         
         #filename_label = image_filename.split('/')[-1].split('.')[0] + '.txt'
         np.savetxt(label_folder_name+label_name.format(image_num),yolo_table_whole,fmt='%s',newline='\n',delimiter=' ')
+        #print(label_name.format(image_num),' finished')

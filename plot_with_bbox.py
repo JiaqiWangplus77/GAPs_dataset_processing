@@ -17,16 +17,16 @@ import matplotlib.pyplot as plt
 deal_with_all_files = 1
 # if true, deal with all files of chosen type
 # if false, deal with single file
-current_type_choice = 2 # %N 0:train,1:test,2 valid
+current_type_choice = 0 # %N 0:train,1:test,2 valid
 image_num = 45
 
 base_folder = os.getcwd()
 # define the folder to extracct images and labels
 image_folder = base_folder + '/images/images/'
-label_folder = base_folder + '/images/labels/'
+label_folder = base_folder + '/images/bbox_merge/labels/'
 
 # define the folder to save images
-img_folder = 'images/'
+img_folder = 'images/bbox_merge/images/'
 
 
 os.makedirs(img_folder,exist_ok=True)
@@ -97,6 +97,6 @@ for image_num in plot_num:
         if not deal_with_all_files:
             plt.figure()
             plt.imshow(image)        
-        print(image_num)     
+        print(imag_name.format(image_num),' finished')     
     
 
