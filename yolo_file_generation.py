@@ -7,7 +7,7 @@ process npy file.
 generate .txt file for yolo v3
 """
 
-from gaps_dataset import gaps
+
 import os
 import numpy as np
 import cv2

@@ -7,6 +7,7 @@ Created on Fri Aug  9 19:18:43 2019
 
 merge the small fixed bbox into a bigger one 
 and generate txt file with yolo format
+
 """
 
 

@@ -71,8 +71,7 @@ for image_num in plot_num:
     image = cv2.imread(image_filename)
     imag_width = image.shape[1]
     imag_height = image.shape[0]
-    
-    
+
     # draw the image with bbox, if there is no problem with the surface, which means no txt file,
     # only plot the image
     
