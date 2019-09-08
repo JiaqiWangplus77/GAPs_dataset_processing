@@ -8,5 +8,6 @@ images/*
 test/*
 train/*
 valid/*
-
+tiramisu_imgs.py
+previous
 

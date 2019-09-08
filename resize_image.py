@@ -14,7 +14,7 @@ from PIL import Image
 
 base_folder = os.getcwd()
 image_folder = os.path.join(base_folder, 'images/images/')
-proportion = 0.4
+proportion = 0.3
 resize = (int(1080*proportion), int(1920*proportion))
 
 file_list = [filename for filename in os.listdir(image_folder) \
