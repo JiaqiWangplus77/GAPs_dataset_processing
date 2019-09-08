@@ -14,33 +14,31 @@ import cv2
 import matplotlib.pyplot as plt
 
 
-deal_with_all_files = 0
+deal_with_all_files = 1
 # if true, deal with all files of chosen type
 # if false, deal with single file
-current_type_choice = 1 # 0:train,1:test,2 valid
+current_type_choice = 2 # 0:train,1:test,2 valid
 image_num = 5  # raise error when out of range
 bbox_padding = 0  
 # the original bbox is 64*64, make it larger to merge better
 bbox_merge_padding = 0
 # make the merged bbox larger for further merging 
-radius_minus= 20
+radius_minus= 55
 
 # base folder is GAPs folder
 base_folder = os.getcwd()
 # define the folder to extracct images and labels
-image_folder = base_folder + '/images/images/'
-label_folder = base_folder + '/images/labels/'
+image_folder = os.path.join(base_folder, 'images/images_resize/') 
+label_folder = os.path.join(base_folder, 'images/labels/') 
+
 # create new folders to save the label files
-label_folder_name = 'images/tiramisu_annotation/'
-label_folder_name2 = 'images/tiramisu_annotation_result/'
+image_folder_name = 'images/tiramisu_resize_annotation_result/'
+os.makedirs(image_folder_name,exist_ok= True)
+
+tiramisu_folder_name = 'images/tiramisu_resize_annotation/'
 
 # 0:intact_road, 1:applied_patch, 2:pothole, 3:inlaid_patch, 4:open_joint, 5:crack
-data_type = [1,2,3,4,5]
-
-label_folder_merge = base_folder + '/' + label_folder_name
-#os.makedirs('images/bbox_merge',exist_ok= True)
-os.makedirs(label_folder_name, exist_ok= True)
-os.makedirs(label_folder_name2, exist_ok= True)
+data_type = [0,1,2,3,4,5]
 
 num_typ = [1418, 500, 50]    # [1418, 500, 50] 
 # the number of photos for each type
@@ -55,17 +53,25 @@ else:
     
 
 image_typ = ['train', 'test', 'valid']
+typ_name_tiramisu = ['train', 'test', 'val']
 current_image_type = image_typ[current_type_choice]
 
+annot_folder_name = os.path.join(base_folder,
+                                 tiramisu_folder_name,
+                                 typ_name_tiramisu[current_type_choice]+'annot/')
+
+final_image_folder = os.path.join(base_folder,
+                                  tiramisu_folder_name,
+                                  typ_name_tiramisu[current_type_choice]+'/')
+os.makedirs(annot_folder_name,exist_ok= True)
+os.makedirs(final_image_folder,exist_ok= True)
 
 # define the name format(pure name or name with folder) for photo and txt file
-
 imag_name = current_image_type + '_{:04d}.jpg'
 imag_name2 = current_image_type + '_{:04d}.png'
 label_name = current_image_type + '_{:04d}.txt'
 image_template = image_folder + imag_name
 label_template = label_folder + label_name
-
 
 radius = 64 - radius_minus
 
@@ -76,7 +82,7 @@ new_dataset_num = new_dataset_num(data_type)
 
 intact_road = (0,0,0)  # black
 applied_patch = (0,255,0)  # green
-pothole = (0,0,255)  # blue
+pothole = (100,0,255)  # blue
 inlaid_patch = (255,255,255)   # white
 open_joint = (204,0,255) #purple
 crack = (255,0,0) # red
@@ -90,6 +96,7 @@ def find_contours(img):
     ret,thresh = cv2.threshold(img,127,255,0)
     # find the counters
     contours,hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+
     return contours,hierarchy
 
 
@@ -102,12 +109,16 @@ for image_num in plot_num:
     imag_height = image.shape[0]
 
     img = np.zeros([imag_height,imag_width,3],dtype=np.uint8)
-    img2 = np.zeros([imag_height,imag_width,3],dtype=np.uint8)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+    labels = np.zeros([imag_height,imag_width,3],dtype=np.uint8)
+#    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    labels = cv2.cvtColor(labels, cv2.COLOR_BGR2GRAY)
+    
+    #img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+    cv2.imwrite(final_image_folder+imag_name2.format(image_num),image)
     
     if not os.path.isfile(label_filename):    
-        pass
+        cv2.imwrite(annot_folder_name+imag_name2.format(image_num),labels)
+        print(imag_name2.format(image_num), ' finished')
     else:
         yolo_table_whole = []
         obj = np.loadtxt(label_filename).reshape(-1,5) # when there is only 1 object
@@ -126,17 +137,36 @@ for image_num in plot_num:
                                    ]).astype(int).T
             # draw bbox, fill the bounding box with color
             data_num = int(new_dataset_num[item])
+            img = np.zeros([imag_height,imag_width,3],dtype=np.uint8)
             for i in range(len(coordinate)):
                 bbox=[(coordinate[i,0],coordinate[i,1])]
-                cv2.circle(img, center=bbox[0], radius=radius, color=(data_num),thickness=-1) 
-                cv2.circle(img2, center=bbox[0], radius=radius, color=colors[item],thickness=-1)   
-        
+                cv2.circle(labels, center=bbox[0], radius=radius, color=(data_num),thickness=-1) 
+                cv2.circle(image, center=bbox[0], radius=radius, color=colors[item],thickness=-1)  
+#            if not deal_with_all_files:
+#                plt.figure()
+#                plt.imshow(image) 
+#                plt.title("after circle")                             
+            
+            # merge the circle with minAreaRect
+#            contours,hierarchy = find_contours(img)
+#
+#            for cnt in contours:
+#
+#                """trial 2"""
+#                min_rect = cv2.minAreaRect(cnt)  # min_area_rectangle
+#
+#                min_rect = np.int0(cv2.boxPoints(min_rect))
+#                cv2.drawContours(labels, [min_rect], contourIdx=0, color=(data_num), thickness=-1)
+#                cv2.drawContours(image, [min_rect], contourIdx=0, color=colors[item], thickness=-1)
+                
+                 
+            
         if not deal_with_all_files:
             plt.figure()
             plt.imshow(image)  
             
-        cv2.imwrite(label_folder_name+imag_name2.format(image_num),img)
-        cv2.imwrite(label_folder_name2+imag_name2.format(image_num),image)
+        cv2.imwrite(image_folder_name+imag_name2.format(image_num),image)
+        cv2.imwrite(annot_folder_name+imag_name2.format(image_num),labels)
         print(imag_name2.format(image_num), ' finished')
         
 

@@ -27,7 +27,9 @@ steps:
 
 ## Generate labels for segmentation
 tiramisu.py
-an initial version to generate png with cls_num. 
+It is an initial version for segmentation trial. The segmentation is done with small circles.
+after running all files. the images and the labels are saved in train/, trainannot/, test/, testannot/, val/, valannot/
+
 
 
    
